@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation: Forward, Redirect, and Init Parameters</title>
+    <style>
+        /* Cài đặt cơ bản */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Ẩn thanh cuộn */
+        }
+
+        /* Màu nền và chữ */
+        body {
+            background-color: #000033; /* Xanh biển rất đậm / đen */
+            color: #FFFFFF; /* Chữ trắng */
+        }
+
+        /* Logo */
+        #logo {
+            position: absolute;
+            top: 40px;
+            right: 50px;
+            width: 150px; 
+            z-index: 1000;
+        }
+
+        /* Container cho các slide */
+        #slideshow-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Định dạng cho từng slide */
+        .slide {
+            width: 90%;
+            height: 90%;
+            padding: 5%;
+            box-sizing: border-box; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0; 
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Hiển thị slide hiện tại */
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Định dạng văn bản */
+        h1 {
+            font-size: 4.0em; 
+            color: #90CAF9; 
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-size: 3.0em; 
+            color: #87CEFA; 
+            border-bottom: 2px solid #87CEFA;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        h3 {
+            font-size: 2.2em; 
+            color: #FFEB3B; 
+            margin-top: 30px;
+        }
+
+        p, li {
+            font-size: 1.8em; 
+            line-height: 1.6;
+            max-width: 900px; 
+        }
+
+        ul {
+            list-style-type: disc; 
+            padding-left: 60px; 
+            text-align: left;
+            display: inline-block;
+        }
+
+        /* Định dạng khối mã */
+        pre {
+            width: 75%; 
+            background-color: #000022;
+            border: 3px solid #87CEFA; 
+            border-radius: 10px;
+            padding: 30px; 
+            text-align: left;
+            font-size: 1.4em; 
+            margin-top: 40px; 
+            box-shadow: 0 0 25px rgba(135, 206, 250, 0.4); 
+            
+            white-space: pre-wrap;   
+            word-break: break-word;  
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: #F8F8F2; /* Màu chữ code mặc định */
+        }
+        
+        /* === CSS CHO TÔ MÀU CÚ PHÁP (NETBEANS STYLE) === */
+        code .code-keyword { color: #E8BF6A; } /* Vàng cam cho keywords/methods */
+        code .code-string  { color: #6A8759; } /* Xanh lá cho strings */
+        code .code-comment { color: #808080; font-style: italic; } /* Xám cho comments */
+        code .code-tag     { color: #569CD6; } /* Xanh dương cho XML tags */
+        code .code-type    { color: #9876AA; } /* Tím cho types */
+        /* === KẾT THÚC CSS TÔ MÀU === */
+
+
+        /* Bảng so sánh */
+        table {
+            width: 90%; 
+            margin-top: 30px;
+            border-collapse: collapse;
+            font-size: 1.3em; 
+        }
+
+        th, td {
+            border: 2px solid #FFFFFF;
+            padding: 20px; 
+        }
+
+        th {
+            background-color: #000066;
+            font-size: 1.2em;
+        }
+
+        td {
+            text-align: center;
+        }
+        
+        td:first-child {
+            font-weight: bold;
+            text-align: left;
+            background-color: #000044;
+        }
+    </style>
+</head>
+<body>
+
+    <img id="logo" src="FPT.png" alt="FPT Logo">
+
+    <div id="slideshow-container">
+
+        <div class="slide active">
+            <h1>Topic: Forward, Redirect, and Initialization Parameters in Servlets</h1>
+            <p><strong>Lecturer:</strong> HieuNT</p>
+            <p><strong>Members:</strong></p>
+            <ul style="text-align: center; list-style-type: none; padding-left: 0;">
+                <li>Nguyễn Minh Triết</li>
+                <li>Lê Trường An</li>
+                <li>Phan Bảo Thắng</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>Introduction</h2>
+            <p>In a Java web application, servlets often need to pass requests between pages or redirect the user to another location.</p>
+            <p>Also, configuration values such as database URLs or admin emails should not be hardcoded.</p>
+            <p>To handle these tasks, we use:</p>
+            <ul style="text-align: center;">
+                <li><strong>Forward</strong> – internal request transfer</li>
+                <li><strong>Redirect</strong> – external navigation</li>
+                <li><strong>Initialization Parameters</strong> – for configuration</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>Forward</h2>
+            <p><strong>Definition:</strong> Forwarding is a server-side process that transfers a request internally from one servlet or JSP to another, within the same application.</p>
+            <h3>Main features:</h3>
+            <ul>
+                <li>The browser doesn’t know the transfer occurred.</li>
+                <li>The URL remains the same.</li>
+                <li>The same request and response objects are reused.</li>
+                <li>Request data is preserved.</li>
+            </ul>
+            <h3>Syntax Example:</h3>
+            <pre><code><span class="code-type">RequestDispatcher</span> rd = <span class="code-keyword">request</span>.getRequestDispatcher(<span class="code-string">"target.jsp"</span>);
+rd.<span class="code-keyword">forward</span>(<span class="code-keyword">request</span>, <span class="code-keyword">response</span>);</code></pre>
+        </div>
+
+        <div class="slide">
+            <h2>Redirect</h2>
+            <p><strong>Definition:</strong> Redirecting is a client-side process where the server tells the browser to send a new HTTP request to another URL.</p>
+            <h3>Main features:</h3>
+            <ul>
+                <li>The URL changes in the browser.</li>
+                <li>A new request is created.</li>
+                <li>The original request data is lost.</li>
+                <li>Can redirect to another domain.</li>
+            </ul>
+            <h3>Syntax Example:</h3>
+            <pre><code><span class="code-keyword">response</span>.<span class="code-keyword">sendRedirect</span>(<span class="code-string">"newPage.jsp"</span>);</code></pre>
+        </div>
+
+        <div class="slide">
+            <h2>Comparison: Forward vs Redirect</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Forward</th>
+                        <th>Redirect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Type</td>
+                        <td>Server-side</td>
+                        <td>Client-side</td>
+                    </tr>
+                    <tr>
+                        <td>URL Change</td>
+                        <td>No</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Request Object</td>
+                        <td>Reused</td>
+                        <td>New one</td>
+                    </tr>
+                    <tr>
+                        <td>Request Data</td>
+                        <td>Preserved</td>
+                        <td>Lost</td>
+                    </tr>
+                    <tr>
+                        <td>Speed</td>
+                        <td>Faster</td>
+                        <td>Slower</td>
+                    </tr>
+                    <tr>
+                        <td>Scope</td>
+                        <td>Same app only</td>
+                        <td>Can go external</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="slide">
+            <h2>Initialization Parameters</h2>
+            <p><strong>Definition:</strong> Initialization parameters are configuration values stored in web.xml.</p>
+            <p>They make the application flexible and easier to maintain.</p>
+            <h3>Two types:</h3>
+            <ul>
+                <li><strong>Servlet Init Parameters</strong> – for a specific servlet.</li>
+                <li><strong>Context Init Parameters</strong> – shared by the entire application.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>Declaring Init Parameters (web.xml)</h2>
+            <p>These parameters are defined in the Deployment Descriptor (web.xml).</p>
+            <pre><code><span class="code-comment">&lt;!-- Context Parameter (for the whole app) --&gt;</span>
+&lt;<span class="code-tag">context-param</span>&gt;
+  &lt;<span class="code-tag">param-name</span>&gt;dbURL&lt;/<span class="code-tag">param-name</span>&gt;
+  &lt;<span class="code-tag">param-value</span>&gt;jdbc:mysql://localhost:3306/shop&lt;/<span class="code-tag">param-value</span>&gt;
+&lt;/<span class="code-tag">context-param</span>&gt;
+
+<span class="code-comment">&lt;!-- Servlet Init Parameter (for one servlet) --&gt;</span>
+&lt;<span class="code-tag">servlet</span>&gt;
+  &lt;<span class="code-tag">servlet-name</span>&gt;MyServlet&lt;/<span class="code-tag">servlet-name</span>&gt;
+  &lt;<span class="code-tag">servlet-class</span>&gt;controller.MyServlet&lt;/<span class="code-tag">servlet-class</span>&gt;
+  
+  &lt;<span class="code-tag">init-param</span>&gt;
+    &lt;<span class="code-tag">param-name</span>&gt;adminEmail&lt;/<span class="code-tag">param-name</span>&gt;
+    &lt;<span class="code-tag">param-value</span>&gt;admin@shop.com&lt;/<span class="code-tag">param-value</span>&gt;
+  &lt;/<span class="code-tag">init-param</span>&gt;
+&lt;/<span class="code-tag">servlet</span>&gt;</code></pre>
+        </div>
+
+        <div class="slide">
+            <h2>Summary</h2>
+            <ul>
+                <li><strong>Forward</strong> – internal transfer, keeps request data, same URL.</li>
+                <li><strong>Redirect</strong> – external transfer, new request, new URL.</li>
+                <li><strong>Init Parameters</strong> – configuration values for flexibility and easy maintenance.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>Conclusion</h2>
+            <p>In summary:</p>
+            <ul style="text-align: center;">
+                <li>Use <code>forward()</code> for internal navigation.</li>
+                <li>Use <code>sendRedirect()</code> for external or visible redirection.</li>
+                <li>Use init parameters for dynamic, configurable applications.</li>
+            </ul>
+            <p style="font-size: 2.5em; margin-top: 50px;">Thank you for listening! 🙏</p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                // Ẩn slide hiện tại
+                slides[currentSlide].classList.remove('active');
+                
+                // Cập nhật slide mới
+                currentSlide = (index + slides.length) % slides.length; // % để xử lý vòng lặp
+                
+                // Hiển thị slide mới
+                slides[currentSlide].classList.add('active');
+            }
+
+            // Lắng nghe sự kiện nhấn phím
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+                    // Chuyển slide tiếp theo
+                    showSlide(currentSlide + 1);
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+                    // Quay lại slide trước
+                    showSlide(currentSlide - 1);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
